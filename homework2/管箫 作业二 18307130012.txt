@@ -1,0 +1,48 @@
+//2.63
+w=sizeof(int)*8
+unsigned srl(unsigned x,int k)
+{
+	unsigned xsra=(int)x>>k;
+	return xsra&((1<<(w-k))-1);
+}
+
+int sra(int x,int k)
+{
+	int xsrl=(unsigned)x>>k;
+	int mask =1<<(w-k-1);
+    return (xsrl^mask)-mask;
+}
+
+//2.70
+int fits_bits(int x,int n)
+{
+	x=x<<1;
+	x=(unsigned)x>>1;
+	x=x>>n;
+	return !x;
+}
+
+//2.77
+A.x<<4+x
+B.x-(x<<3)
+C.(x<<6)-(x<<2)
+D.(x<<4)-(x<<7)
+
+//2.79
+int mul3div4(int x)
+{
+	x=((x<<1)+x);
+	((x&INT_MIN)&&(x=x+(1<<2)-1));
+	return x=x>>2;
+}
+
+//2.82
+A. false when x=INT_MIN
+B. true, left=x<<4-x+y<<4+y=x*16-x+y*16+y=x*15+y*17
+C. true, ~x+~y+1=-x+-y-1=-(x+y)-1=~(x+y)
+D. true, (ux-uy)==-(unsigned)(y-x)
+		 -(ux-uy)==(unsigned)(y-x)
+		 (ux-uy)==(unsigned)(x-y)
+E. true,x>>2<<2==x&~0x3==x-(00/01/10/11)
+		00/01/10/11>=0
+		((x>>2)<<2)<=x
