@@ -1,0 +1,59 @@
+# Execution begins at address 0
+	.pos 0
+	irmovq stack, %rsp
+	call main
+	halt
+
+# Array of 4 elements
+	.align 8
+array:
+	.quad 0x0000000000000004
+	.quad 0x0000000000000003
+	.quad 0x0000000000000002
+	.quad 0x0000000000000001
+
+main:
+	irmovq array,%rdi
+	irmovq $4, %rsi			#count=4
+	call bubble_ys			#bubble_ys(array,4)
+	ret
+
+#void bubble_ys(long *data, long count)
+#data in %rdi, count in %rsi
+bubble_ys:
+	irmovq $1, %r8			#1
+	irmovq $8, %r9			#8
+	rrmovq %rsi, %rax
+	subq %r8, %rax			#last = %rax = count -1
+	je End				#last == 0 -> jmp End
+L1:
+	xorq %rcx, %rcx			#i = %rcx = 0
+L2:
+	rrmovq %rcx, %rdx		#%rdx = i
+	addq %rdx, %rdx			#%rdx = 2 * i
+	addq %rdx, %rdx			#%rdx = 4 * i
+	addq %rdx, %rdx			#%rdx = 8 * i
+	addq %rdi, %rdx			#%rdx = data + 8 * i
+	mrmovq (%rdx), %r10		#%r10 = data[i]
+	addq %r9, %rdx			#%rdx = data + 8 * i + 8
+	mrmovq (%rdx), %rbx		#%rbx = data[i + 1]
+	rrmovq %rbx, %r11		#%r11 = data[i + 1]
+	subq %r10, %rbx			#%rbx = data[i + 1] - data[i]
+	jge Next			#%rbx <= 0 -> exchange
+	rmmovq %r10, (%rdx)		#data[i + 1] = data[i]
+	subq %r9, %rdx			#%rdx = %rdx - 8
+	rmmovq %r11, (%rdx)		#data[i] = data[i + 1]
+Next:
+	addq %r8, %rcx			#i++
+	rrmovq %rcx, %r12		#%r12 = %rcx = i
+	subq %rax, %r12			#i - last
+	jl L2				#i < last -> jmp L2
+	subq %r8, %rax			#last--
+	jg L1				#last > 0 -> jmp L1
+End:
+	ret				#Return
+
+#Stack starts here and grows to lower addresses
+	.pos 0x200
+stack:
+

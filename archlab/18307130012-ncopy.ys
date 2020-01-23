@@ -1,0 +1,182 @@
+#/* $begin ncopy-ys */
+##################################################################
+# ncopy.ys - Copy a src block of len words to dst.
+# Return the number of positive words (>0) contained in src.
+#
+# Include your name and ID here.
+# 18307130012 GuanXiao #
+#
+# Describe how and why you modified the baseline code.
+# Loop unwinding *10 #
+# Prefetch Data #
+# Use Tree to jump #
+# len = 998 bytes #
+#
+##################################################################
+# Do not modify this portion
+# Function prologue.
+# %rdi = src, %rsi = dst, %rdx = len
+ncopy:
+
+##################################################################
+# You can modify this portion
+	iaddq $-10,%rdx		# len < 10
+	jl Tree			# goto Tree
+L1:	
+	mrmovq (%rdi), %r8
+	mrmovq 8(%rdi), %r9
+	rmmovq %r8, (%rsi)
+	andq %r8, %r8		# val <= 0
+	jle L2			# Skip ++
+	iaddq $0x1, %rax	# count++
+L2:	
+	mrmovq 16(%rdi), %r8
+	rmmovq %r9, 8(%rsi)
+	andq %r9, %r9		# val <= 0
+	jle L3			# skip ++
+	iaddq $0x1, %rax	# count++
+L3:	
+	mrmovq 24(%rdi), %r9
+	rmmovq %r8, 16(%rsi)
+	andq %r8, %r8		# val <= 0
+	jle L4			# skip ++
+	iaddq $0x1, %rax	# count++
+L4:	
+	mrmovq 32(%rdi), %r8
+	rmmovq %r9, 24(%rsi)
+	andq %r9, %r9		# val <= 0
+	jle L5			# skip ++
+	iaddq $0x1, %rax	# count++
+L5:	
+	mrmovq 40(%rdi), %r9
+	rmmovq %r8, 32(%rsi)
+	andq %r8, %r8		# val <= 0
+	jle L6			# skip ++
+	iaddq $0x1, %rax	# count++
+L6:	
+	mrmovq 48(%rdi), %r8
+	rmmovq %r9, 40(%rsi)
+	andq %r9, %r9		# val <= 0
+	jle L7			# skip++
+	iaddq $0x1, %rax	# count++
+L7:	
+	mrmovq 56(%rdi), %r9
+	rmmovq %r8, 48(%rsi)
+	andq %r8, %r8		# val <= 0
+	jle L8			# skip++
+	iaddq $0x1, %rax	# count++
+L8:	
+	mrmovq 64(%rdi), %r8
+	rmmovq %r9, 56(%rsi)
+	andq %r9, %r9		# val <= 0
+	jle L9			# skip++
+	iaddq $0x1, %rax	# count++
+L9:	
+	mrmovq 72(%rdi), %r9
+	rmmovq %r8, 64(%rsi)
+	andq %r8, %r8		# val <= 0
+	jle L10			# skip++
+	iaddq $0x1, %rax	# count++
+L10:	
+	rmmovq %r9, 72(%rsi)
+	andq %r9, %r9		# val <= 0?
+	jle LF			# skip++
+	iaddq $0x1, %rax	# count++
+LF:
+	iaddq $0x50, %rdi	# src +
+	iaddq $0x50, %rsi	# dst +
+	iaddq $-10,%rdx		# len >= 10
+	jge L1			# again
+Tree:
+	iaddq	$7,%rdx		# len <= 3
+	jg	Right
+	jl	Left
+	je	R3		# len == 3
+Left:
+	iaddq	$2,%rdx		# len == 1
+	je	R1
+	iaddq	$-1,%rdx	# len == 2
+	je	R2
+	ret			# len == 0 
+Right:
+	iaddq	$-3,%rdx	# len <= 6 
+	jg	Right789	# len == 7 || 8 || 9
+	je	R6		# len == 6
+	iaddq	$1,%rdx		# len == 4 || 5
+	je	R5		# len == 5
+	jmp	R4		# len == 4
+Right789:
+	iaddq	$-2,%rdx	# No then 9
+	jl	R7		# len == 7
+	je	R8		# len == 8
+R9:
+	mrmovq 64(%rdi), %r9
+	rmmovq %r9, 64(%rsi)
+	andq %r9, %r9		# val <= 0
+R8:
+	mrmovq 56(%rdi), %r9
+	jle R8sub		# skip++
+	iaddq $0x1, %rax	# count++
+R8sub:
+	rmmovq %r9, 56(%rsi)
+	andq %r9, %r9		# val <= 0
+R7:
+	mrmovq 48(%rdi), %r9
+	jle R7sub		# skip++
+	iaddq $0x1, %rax	# count++
+R7sub:
+	rmmovq %r9, 48(%rsi)
+	andq %r9, %r9		# val <= 0
+R6:
+	mrmovq 40(%rdi), %r9
+	jle R6sub		# skip++
+	iaddq $0x1, %rax	# count++
+R6sub:
+	rmmovq %r9, 40(%rsi)
+	andq %r9, %r9		# val <= 0
+R5:
+	mrmovq 32(%rdi), %r9
+	jle R5sub		# skip++
+	iaddq $0x1, %rax	# count++
+R5sub:
+	rmmovq %r9, 32(%rsi)
+	andq %r9, %r9		# val <= 0
+R4:
+	mrmovq 24(%rdi), %r9
+	jle R4sub		# skip++
+	iaddq $0x1, %rax	# count++
+R4sub:
+	rmmovq %r9, 24(%rsi)
+	andq %r9, %r9		# val <= 0
+R3:
+	mrmovq 16(%rdi), %r9
+	jle R3sub		# skip++
+	iaddq $0x1, %rax	# count++
+R3sub:
+	rmmovq %r9, 16(%rsi)
+	andq %r9, %r9		# val <= 0
+R2:
+	mrmovq 8(%rdi), %r9
+	jle R2sub		# skip++
+	iaddq $0x1, %rax	# count++
+R2sub:
+	rmmovq %r9, 8(%rsi)
+	andq %r9, %r9		# val <= 0
+R1:
+	mrmovq (%rdi), %r9
+	jle R1sub		# skip++
+	iaddq $0x1, %rax	# count++
+R1sub:
+	rmmovq %r9, (%rsi)
+	andq %r9, %r9		# val <= 0
+	jle Done		# skip++
+	iaddq $0x1, %rax	# count++
+##################################################################
+# Do not modify the following section of code
+# Function epilogue.
+Done:
+	ret
+##################################################################
+# Keep the following label at the end of your function
+End:
+#/* $end ncopy-ys */

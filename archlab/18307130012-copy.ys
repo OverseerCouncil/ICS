@@ -1,0 +1,56 @@
+# Guan Xiao 18307130012
+# Execution begins at address 0
+	.pos 0
+	irmovq stack, %rsp
+	call main
+	halt
+
+# Sample linked list
+	.align 8
+# Source block
+src:
+	.quad 0x00a
+	.quad 0x0b0
+	.quad 0xc00
+# Destination block
+dest:
+	.quad 0x111
+	.quad 0x222
+	.quad 0x333
+
+main:
+	irmovq src, %rdi
+	irmovq dest, %rsi
+	irmovq $3, %rdx
+	call copyblock
+	ret
+
+# long copy_block(long *src, long *dest, long len)
+# src in rdi, dest in rsi, len in rdx
+copyblock:
+	pushq %r8
+	pushq %r9
+	pushq %r10
+	irmovq $1, %r8
+	irmovq $8, %r9
+	irmovq $0, %rax
+	jmp while
+loop:
+	mrmovq 0(%rdi), %r10
+	addq %r9, %rdi
+	rmmovq %r10, (%rsi)
+	addq %r9, %rsi
+	xorq %r10 ,%rax
+	subq %r8, %rdx
+while:
+	andq %rdx, %rdx
+	jg loop
+	popq %r10
+	popq %r9
+	popq %r8
+	ret
+
+# Stack starts here and grows to lower addresses
+	.pos 0x200
+stack:
+
